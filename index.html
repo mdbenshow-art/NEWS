@@ -607,6 +607,7 @@
         async function fetchStatus() {
             try {
                 const response = await fetch('/api/status');
+                if (!response.ok) throw new Error();
                 const status = await response.json();
                 
                 document.getElementById('stat-status').textContent = status.status;
@@ -614,7 +615,11 @@
                 document.getElementById('stat-last').textContent = status.last_crawl_time;
                 document.getElementById('stat-total').textContent = `${status.total_records} 筆`;
             } catch (err) {
-                console.error("無法取得排程狀態:", err);
+                // 靜態網頁模式 Fallback
+                document.getElementById('stat-status').innerHTML = '<span style="color: #f59e0b;">Static</span>';
+                document.getElementById('stat-next').textContent = '僅本地伺服器支援';
+                document.getElementById('stat-last').textContent = '僅本地伺服器支援';
+                document.getElementById('stat-total').textContent = `${rawNewsData.length} 筆`;
             }
         }
 
@@ -628,21 +633,31 @@
             errorBox.classList.remove('active');
             
             try {
-                const response = await fetch('/api/news');
+                let response;
+                let isStatic = false;
+                try {
+                    response = await fetch('/api/news');
+                    if (!response.ok) throw new Error();
+                } catch (e) {
+                    console.log("無法連接本地 API，改為讀取靜態歷史檔案 news_history.json:", e);
+                    response = await fetch('news_history.json');
+                    isStatic = true;
+                }
+                
                 const result = await response.json();
                 
-                if (result.error) {
+                if (!isStatic && result.error) {
                     errorBox.textContent = `錯誤: ${result.error}`;
                     errorBox.classList.add('active');
                     jsonDisplay.textContent = '載入失敗';
                 } else {
-                    rawNewsData = result.data;
+                    rawNewsData = isStatic ? result : result.data;
                     filterAndRenderNews();
                 }
             } catch (err) {
-                errorBox.textContent = `連線後端 API 失敗: ${err.message}`;
+                errorBox.textContent = `讀取資料失敗: ${err.message}`;
                 errorBox.classList.add('active');
-                jsonDisplay.textContent = '連線失敗';
+                jsonDisplay.textContent = '連線與讀取失敗';
             } finally {
                 loader.classList.remove('active');
             }
@@ -653,6 +668,12 @@
 
         // 觸發手動爬蟲
         async function triggerCrawl() {
+            const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+            if (!isLocalhost) {
+                alert("手動即時抓取功能僅限在本地運行伺服器時使用（http://127.0.0.1:8000）。當前靜態網頁僅展示已匯整的歷史新聞。");
+                return;
+            }
+
             const loader = document.getElementById('loader');
             const loaderText = document.getElementById('loader-text');
             const errorBox = document.getElementById('error-box');
