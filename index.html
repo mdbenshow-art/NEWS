@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>農業與農糧署新聞排程匯整系統</title>
+    <!-- 引入字型 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            --json-key: #f43f5e;
+            --json-string: #10b981;
+            --json-number: #f59e0b;
+            --json-boolean: #3b82f6;
+            --json-null: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        /* 背景微光特效 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* 狀態面板 */
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .status-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-value {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .status-value.highlight {
+            color: #a78bfa;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-refresh {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        /* 篩選與搜尋列 */
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .search-input, .select-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .select-input {
+            min-width: 140px;
+            cursor: pointer;
+        }
+
+        .search-input:focus, .select-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        /* 來源 Badge */
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .badge-moa {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-afa {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* 主顯示區域 (玻璃擬態) */
+        .content-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            min-height: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* JSON 格式化區域 */
+        pre {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.25rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .json-key { color: var(--json-key); font-weight: bold; }
+        .json-string { color: var(--json-string); }
+        .json-number { color: var(--json-number); }
+        .json-boolean { color: var(--json-boolean); }
+        .json-null { color: var(--json-null); }
+
+        /* 簡單列表展示 */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .news-item {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            gap: 1rem;
+        }
+
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateX(3px);
+        }
+
+        .news-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex: 1;
+        }
+
+        .news-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .news-doc {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .news-date {
+            color: var(--text-secondary);
+        }
+
+        .news-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .news-title:hover {
+            color: #a78bfa;
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-link:hover {
+            background: var(--accent-gradient);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* 載入中狀態 */
+        .loader-container {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
+            z-index: 10;
+        }
+
+        .loader-container.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #f43f5e;
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>農業與農糧署新聞排程匯整系統</h1>
+            <p class="subtitle">每日 06:00 定時爬取並去重匯整農糧署與農業部最新新聞</p>
+        </header>
+
+        <!-- 狀態面板 -->
+        <div class="status-panel">
+            <div class="status-card">
+                <span class="status-label">排程器狀態</span>
+                <span class="status-value highlight" id="stat-status">Running</span>
+            </div>
+            <div class="status-card">
+                <span class="status-label">下一次定時爬取</span>
+                <span class="status-value" id="stat-next">計算中...</span>
+            </div>
+            <div class="status-card">
+                <span class="status-label">最後爬取時間</span>
+                <span class="status-value" id="stat-last">尚未執行</span>
+            </div>
+            <div class="status-card">
+                <span class="status-label">已匯整新聞筆數</span>
+                <span class="status-value" id="stat-total">0 筆</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('json')">JSON 檢視</button>
+                <button class="tab-btn" onclick="switchTab('list')">簡潔列表</button>
+            </div>
+            <button class="btn-refresh" onclick="triggerCrawl()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                重新抓取
+            </button>
+        </div>
+
+        <!-- 篩選與搜尋列 -->
+        <div class="filter-bar">
+            <select id="source-filter" class="select-input" onchange="filterAndRenderNews()">
+                <option value="all">所有來源</option>
+                <option value="農業部">農業部</option>
+                <option value="農糧署">農糧署</option>
+            </select>
+            <input type="text" id="search-query" class="search-input" placeholder="搜尋新聞標題或關鍵字..." oninput="filterAndRenderNews()">
+        </div>
+
+        <div class="content-panel">
+            <!-- 載入中遮罩 -->
+            <div id="loader" class="loader-container">
+                <div class="spinner"></div>
+                <p id="loader-text">正在讀取新聞歷史資料...</p>
+            </div>
+
+            <!-- 錯誤訊息 -->
+            <div id="error-box" class="error-message"></div>
+
+            <!-- JSON 檢視區 -->
+            <div id="json-view" class="view-content active">
+                <pre><code id="json-display">載入中...</code></pre>
+            </div>
+
+            <!-- 列表檢視區 -->
+            <div id="list-view" class="view-content">
+                <div id="list-display" class="list-container">
+                    <!-- 動態渲染新聞 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>資料來源：
+            <a href="https://www.moa.gov.tw/theme_list.php?theme=news&sub_theme=agri" target="_blank">農業部新聞</a> | 
+            <a href="https://www.afa.gov.tw/cht/index.php?code=list&ids=307" target="_blank">農糧署新聞</a>
+        </p>
+    </footer>
+
+    <script>
+        let rawNewsData = [];
+
+        // 切換分頁
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-content').forEach(view => view.classList.remove('active'));
+
+            if (tab === 'json') {
+                document.querySelector('button[onclick="switchTab(\'json\')"]').classList.add('active');
+                document.getElementById('json-view').classList.add('active');
+            } else {
+                document.querySelector('button[onclick="switchTab(\'list\')"]').classList.add('active');
+                document.getElementById('list-view').classList.add('active');
+            }
+        }
+
+        // 格式化 JSON 並加上語法高亮
+        function highlightJSON(jsonObj) {
+            let json = JSON.stringify(jsonObj, null, 4);
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // 篩選並渲染資料
+        function filterAndRenderNews() {
+            const sourceVal = document.getElementById('source-filter').value;
+            const searchVal = document.getElementById('search-query').value.trim().toLowerCase();
+
+            // 過濾資料
+            const filteredData = rawNewsData.filter(item => {
+                const matchSource = (sourceVal === 'all' || item.source === sourceVal);
+                const matchSearch = (!searchVal || 
+                    item.title.toLowerCase().includes(searchVal) || 
+                    (item.doc_id && item.doc_id.toLowerCase().includes(searchVal)) ||
+                    item.date.includes(searchVal)
+                );
+                return matchSource && matchSearch;
+            });
+
+            // 渲染 JSON
+            document.getElementById('json-display').innerHTML = highlightJSON(filteredData);
+
+            // 渲染列表
+            renderListView(filteredData);
+        }
+
+        // 渲染列表視圖
+        function renderListView(data) {
+            const container = document.getElementById('list-display');
+            container.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">沒有符合條件的新聞資料</p>';
+                return;
+            }
+
+            data.forEach(item => {
+                const newsEl = document.createElement('div');
+                newsEl.className = 'news-item';
+                
+                const badgeClass = item.source === '農糧署' ? 'badge-afa' : 'badge-moa';
+                const docText = item.doc_id ? `<span class="news-doc">${item.doc_id}</span>` : '';
+                
+                newsEl.innerHTML = `
+                    <div class="news-info">
+                        <div class="news-header">
+                            <span class="badge ${badgeClass}">${item.source}</span>
+                            ${docText}
+                            <span class="news-date">${item.date}</span>
+                        </div>
+                        <a href="${item.link}" target="_blank" class="news-title">${item.title}</a>
+                    </div>
+                    <a href="${item.link}" target="_blank" class="btn-link" title="開啟連結">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                    </a>
+                `;
+                container.appendChild(newsEl);
+            });
+        }
+
+        // 取得狀態
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                document.getElementById('stat-status').textContent = status.status;
+                document.getElementById('stat-next').textContent = status.next_crawl_time;
+                document.getElementById('stat-last').textContent = status.last_crawl_time;
+                document.getElementById('stat-total').textContent = `${status.total_records} 筆`;
+            } catch (err) {
+                console.error("無法取得排程狀態:", err);
+            }
+        }
+
+        // 取得 API 資料
+        async function fetchData() {
+            const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('error-box');
+            const jsonDisplay = document.getElementById('json-display');
+            
+            loader.classList.add('active');
+            errorBox.classList.remove('active');
+            
+            try {
+                const response = await fetch('/api/news');
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorBox.textContent = `錯誤: ${result.error}`;
+                    errorBox.classList.add('active');
+                    jsonDisplay.textContent = '載入失敗';
+                } else {
+                    rawNewsData = result.data;
+                    filterAndRenderNews();
+                }
+            } catch (err) {
+                errorBox.textContent = `連線後端 API 失敗: ${err.message}`;
+                errorBox.classList.add('active');
+                jsonDisplay.textContent = '連線失敗';
+            } finally {
+                loader.classList.remove('active');
+            }
+            
+            // 讀取狀態
+            await fetchStatus();
+        }
+
+        // 觸發手動爬蟲
+        async function triggerCrawl() {
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loader-text');
+            const errorBox = document.getElementById('error-box');
+            
+            loaderText.textContent = "正在即時爬取農糧署與農業部新聞並進行匯整去重...";
+            loader.classList.add('active');
+            errorBox.classList.remove('active');
+            
+            try {
+                const response = await fetch('/api/crawl', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorBox.textContent = `手動爬取失敗: ${result.error}`;
+                    errorBox.classList.add('active');
+                } else {
+                    rawNewsData = result.data;
+                    filterAndRenderNews();
+                }
+            } catch (err) {
+                errorBox.textContent = `觸發爬蟲連線失敗: ${err.message}`;
+                errorBox.classList.add('active');
+            } finally {
+                loader.classList.remove('active');
+                loaderText.textContent = "正在讀取新聞歷史資料...";
+            }
+            
+            // 更新狀態
+            await fetchStatus();
+        }
+
+        // 頁面載入後自動取得資料
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
+
