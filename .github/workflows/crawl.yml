@@ -1,0 +1,45 @@
+name: Daily News Crawl
+
+on:
+  schedule:
+    # 每天早上 6:00 台北時間 (UTC+8)，對應 UTC 22:00 (前一天)
+    - cron: '0 22 * * *'
+  workflow_dispatch: # 允許在 GitHub 頁面手動點擊按鈕執行
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 需要寫入權限來 push 更新後的 json 檔案
+
+    steps:
+    - name: 檢出專案代碼
+      uses: actions/checkout@v4
+
+    - name: 設定 Python 環境
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: 安裝依賴套件
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 執行新聞爬蟲與合併
+      run: python crawl.py
+
+    - name: 提交並推送更新至 GitHub
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # 檢查是否有檔案變動
+        if git diff --quiet news_history.json status.json; then
+          echo "沒有偵測到任何新聞資料變更。"
+        else
+          git add news_history.json status.json
+          git commit -m "auto: 每日定時抓取新聞與狀態更新 [$(date +'%Y-%m-%d %H:%M:%S')]"
+          git push
+        fi

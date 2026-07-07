@@ -606,6 +606,7 @@
         // 取得狀態
         async function fetchStatus() {
             try {
+                // 優先嘗試本地 API 端點
                 const response = await fetch('/api/status');
                 if (!response.ok) throw new Error();
                 const status = await response.json();
@@ -615,11 +616,23 @@
                 document.getElementById('stat-last').textContent = status.last_crawl_time;
                 document.getElementById('stat-total').textContent = `${status.total_records} 筆`;
             } catch (err) {
-                // 靜態網頁模式 Fallback
-                document.getElementById('stat-status').innerHTML = '<span style="color: #f59e0b;">Static</span>';
-                document.getElementById('stat-next').textContent = '僅本地伺服器支援';
-                document.getElementById('stat-last').textContent = '僅本地伺服器支援';
-                document.getElementById('stat-total').textContent = `${rawNewsData.length} 筆`;
+                // 靜態網頁模式 Fallback: 嘗試讀取靜態 status.json 狀態檔
+                try {
+                    const response = await fetch('status.json');
+                    if (!response.ok) throw new Error();
+                    const status = await response.json();
+                    
+                    document.getElementById('stat-status').innerHTML = `<span style="color: #34d399;">${status.status}</span>`;
+                    document.getElementById('stat-next').textContent = status.next_crawl_time;
+                    document.getElementById('stat-last').textContent = status.last_crawl_time;
+                    document.getElementById('stat-total').textContent = `${status.total_records} 筆`;
+                } catch (e) {
+                    // 若無 status.json 則保底顯示
+                    document.getElementById('stat-status').innerHTML = '<span style="color: #f59e0b;">Static</span>';
+                    document.getElementById('stat-next').textContent = '僅本地伺服器支援';
+                    document.getElementById('stat-last').textContent = '僅本地伺服器支援';
+                    document.getElementById('stat-total').textContent = `${rawNewsData.length} 筆`;
+                }
             }
         }
 
@@ -670,7 +683,7 @@
         async function triggerCrawl() {
             const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
             if (!isLocalhost) {
-                alert("手動即時抓取功能僅限在本地運行伺服器時使用（http://127.0.0.1:8000）。當前靜態網頁僅展示已匯整的歷史新聞。");
+                alert("手動即時抓取功能僅限在本地運行伺服器時使用。在 GitHub Pages 上，系統會透過 GitHub Actions 每天自動定時抓取並更新最新新聞。");
                 return;
             }
 
