@@ -34,6 +34,8 @@ python run.py
 * `beautifulsoup4`：HTML 解析器
 
 ### 開發與測試常用指令
+* 執行手動爬蟲 (無伺服器模式)：
+  `python crawl.py`
 * 測試農糧署爬蟲邏輯：
   `python scratch/test_afa_crawl.py`
 * 測試編碼探測邏輯：
@@ -52,25 +54,31 @@ python run.py
 * 去重機制以新聞的**唯一網址 (`link`)** 作為 Key 值。
 * 合併後的資料會依據民國年日期（如 `115-07-06`）由新到舊排序後寫回檔案。
 
-### 3. 背景排程器
+### 3. 背景排程器 (本地運行環境)
 * 在 FastAPI 的 `lifespan` 啟動時，會開啟一個後台 Daemon 執行緒。
 * 排程器會計算當前時間距離**每日早上 6:00** 的秒數，並進行精準休眠。
 * 時間到達時，自動抓取雙邊新聞並寫入 `news_history.json`。
-* 伺服器關閉時，排程器會安全釋放，避免程序殘留。
+
+### 4. GitHub Actions 與 Pages 自動更新 (靜態託管環境)
+* **自動爬蟲工作流 (`.github/workflows/crawl.yml`)**：設定於每天台北時間早上 **06:00 (UTC 22:00)** 自動執行 `crawl.py`。
+* **GitOps 自動更新**：工作流執行完爬蟲後，若偵測到有新新聞，會自動將更新後的 `news_history.json` 與靜態狀態檔 `status.json` 推送回 GitHub 儲存庫，進而觸發 GitHub Pages 重新部署更新網頁。
 
 ---
 
-## API 接口說明
+## API 與靜態資源說明
 
-| HTTP 方法 | 路由 | 說明 |
-| :--- | :--- | :--- |
-| `GET` | `/` | 系統前端 HTML 主頁面 |
-| `GET` | `/api/news` | 讀取並回傳匯整後的新聞列表（若存檔不存在則自動初始化爬取） |
-| `POST` | `/api/crawl` | 立即手動執行一次爬蟲並匯整，回傳最新的去重資料 |
-| `GET` | `/api/status` | 取得排程器狀態（如最後執行時間、下次執行時間、總筆數） |
+| HTTP 方法/路徑 | 本地伺服器模式 | GitHub Pages 靜態模式 | 說明 |
+| :--- | :--- | :--- | :--- |
+| `GET /` | 路由至 `index.html` | 託管並載入 `index.html` | 前端主網頁 |
+| `GET /api/news` | 讀取並回傳歷史新聞資料 | Fallback 讀取 `news_history.json` 靜態檔 | 取得匯整後新聞列表 |
+| `POST /api/crawl` | 立即手動執行爬蟲與去重 | 提示僅支援本地環境，引導等待 Actions 自動更新 | 手動觸發即時爬網 |
+| `GET /api/status` | 取得本地排程器運行狀態 | Fallback 讀取 `status.json` 靜態檔 | 取得最後/下次更新時間及總筆數 |
 
 ---
 
 ## 技術細節
 * **網頁解碼**：由於農糧署網站回應之 HTML 有時編碼探測混亂，系統採用 `response.content.decode('utf-8', errors='ignore')` 強制 UTF-8 解碼，確保中文標題與日期解析無誤。
 * **日期解析**：透過正則表達式 `\d+-\d+-\d+` 提取民國日期字串（如 `115-07-06`），此格式排序相容於標準字串排序。
+* **GitHub Pages 部署必要設定**：
+  1. 必須在儲存庫的 **Settings** -> **Actions** -> **General** 下將 **Workflow permissions** 改為 **Read and write permissions**，允許 Actions 推送更新後的 JSON。
+  2. 在 **Settings** -> **Pages** 下將 **Build and deployment** 設定為從 `main` 分支的 `/ (root)` 部署。
