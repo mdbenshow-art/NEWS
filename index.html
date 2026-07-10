@@ -427,6 +427,59 @@
             color: var(--accent-color);
             text-decoration: none;
         }
+
+        /* 關鍵字搜尋 */
+        .keyword-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .keyword-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .keyword-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .keyword-badge:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .keyword-badge:active {
+            transform: translateY(1px);
+        }
+
+        .keyword-badge.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -468,13 +521,22 @@
         </div>
 
         <!-- 篩選與搜尋列 -->
-        <div class="filter-bar">
+        <div class="filter-bar" style="margin-bottom: 0.75rem;">
             <select id="source-filter" class="select-input" onchange="filterAndRenderNews()">
                 <option value="all">所有來源</option>
                 <option value="農業部">農業部</option>
                 <option value="農糧署">農糧署</option>
             </select>
             <input type="text" id="search-query" class="search-input" placeholder="搜尋新聞標題或關鍵字..." oninput="filterAndRenderNews()">
+        </div>
+        <div class="keyword-container">
+            <span class="keyword-label">熱門關鍵字：</span>
+            <button class="keyword-badge" onclick="toggleKeyword('颱風')">颱風</button>
+            <button class="keyword-badge" onclick="toggleKeyword('補貼')">補貼</button>
+            <button class="keyword-badge" onclick="toggleKeyword('產銷履歷')">產銷履歷</button>
+            <button class="keyword-badge" onclick="toggleKeyword('寵物')">寵物</button>
+            <button class="keyword-badge" onclick="toggleKeyword('蔬果')">蔬果</button>
+            <button class="keyword-badge" onclick="toggleKeyword('堰塞湖')">堰塞湖</button>
         </div>
 
         <div class="content-panel">
@@ -546,10 +608,34 @@
             });
         }
 
+        // 點擊關鍵字進行搜尋
+        function toggleKeyword(keyword) {
+            const searchInput = document.getElementById('search-query');
+            const trimmedKeyword = keyword.trim();
+            
+            if (searchInput.value.trim() === trimmedKeyword) {
+                searchInput.value = '';
+            } else {
+                searchInput.value = trimmedKeyword;
+            }
+            filterAndRenderNews();
+        }
+
         // 篩選並渲染資料
         function filterAndRenderNews() {
             const sourceVal = document.getElementById('source-filter').value;
             const searchVal = document.getElementById('search-query').value.trim().toLowerCase();
+
+            // 更新熱門關鍵字 active 狀態
+            const badges = document.querySelectorAll('.keyword-badge');
+            badges.forEach(badge => {
+                const text = badge.textContent.trim().toLowerCase();
+                if (searchVal === text) {
+                    badge.classList.add('active');
+                } else {
+                    badge.classList.remove('active');
+                }
+            });
 
             // 過濾資料
             const filteredData = rawNewsData.filter(item => {
