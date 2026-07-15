@@ -242,6 +242,18 @@
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
+        .badge-ptt {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-agriharvest {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
         /* 主顯示區域 (玻璃擬態) */
         .content-panel {
             background: var(--panel-bg);
@@ -526,6 +538,8 @@
                 <option value="all">所有來源</option>
                 <option value="農業部">農業部</option>
                 <option value="農糧署">農糧署</option>
+                <option value="PTT Fruits">PTT Fruits</option>
+                <option value="農傳媒">農傳媒</option>
             </select>
             <input type="text" id="search-query" class="search-input" placeholder="搜尋新聞標題或關鍵字..." oninput="filterAndRenderNews()">
         </div>
@@ -534,9 +548,10 @@
             <button class="keyword-badge" onclick="toggleKeyword('颱風')">颱風</button>
             <button class="keyword-badge" onclick="toggleKeyword('補貼')">補貼</button>
             <button class="keyword-badge" onclick="toggleKeyword('產銷履歷')">產銷履歷</button>
-            <button class="keyword-badge" onclick="toggleKeyword('寵物')">寵物</button>
             <button class="keyword-badge" onclick="toggleKeyword('蔬果')">蔬果</button>
             <button class="keyword-badge" onclick="toggleKeyword('堰塞湖')">堰塞湖</button>
+            <button class="keyword-badge" onclick="toggleKeyword('苯駢芘')">苯駢芘</button>
+            <button class="keyword-badge" onclick="toggleKeyword('食安')">食安</button>
         </div>
 
         <div class="content-panel">
@@ -566,7 +581,8 @@
     <footer>
         <p>資料來源：
             <a href="https://www.moa.gov.tw/theme_list.php?theme=news&sub_theme=agri" target="_blank">農業部新聞</a> | 
-            <a href="https://www.afa.gov.tw/cht/index.php?code=list&ids=307" target="_blank">農糧署新聞</a>
+            <a href="https://www.afa.gov.tw/cht/index.php?code=list&ids=307" target="_blank">農糧署新聞</a> | 
+            <a href="https://www.agriharvest.tw/archives/category/%E6%96%B0%E8%81%9E/" target="_blank">農傳媒新聞</a>
         </p>
     </footer>
 
@@ -669,7 +685,14 @@
                 const newsEl = document.createElement('div');
                 newsEl.className = 'news-item';
                 
-                const badgeClass = item.source === '農糧署' ? 'badge-afa' : 'badge-moa';
+                let badgeClass = 'badge-moa';
+                if (item.source === '農糧署') {
+                    badgeClass = 'badge-afa';
+                } else if (item.source === 'PTT Fruits') {
+                    badgeClass = 'badge-ptt';
+                } else if (item.source === '農傳媒') {
+                    badgeClass = 'badge-agriharvest';
+                }
                 const docText = item.doc_id ? `<span class="news-doc">${item.doc_id}</span>` : '';
                 
                 newsEl.innerHTML = `
@@ -777,7 +800,7 @@
             const loaderText = document.getElementById('loader-text');
             const errorBox = document.getElementById('error-box');
             
-            loaderText.textContent = "正在即時爬取農糧署與農業部新聞並進行匯整去重...";
+            loaderText.textContent = "正在即時爬取各來源農業新聞並進行匯整去重...";
             loader.classList.add('active');
             errorBox.classList.remove('active');
             

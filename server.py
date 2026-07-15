@@ -151,6 +151,178 @@ def scrape_afa_news(limit=10):
         
     return news_items
 
+# 爬取 PTT Fruits 板文章
+def scrape_ptt_fruits(limit=10):
+    url = "https://www.ptt.cc/bbs/Fruits/index.html"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Cookie": "over18=1"
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"[Crawler] PTT Fruits fetch failed: {e}")
+        return []
+        
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    # 篩選掉置底公告（置底公告在 <div class="r-list-sep"></div> 之後）
+    sep = soup.find("div", class_="r-list-sep")
+    if sep:
+        r_ents = sep.find_previous_siblings("div", class_="r-ent")
+    else:
+        r_ents = list(reversed(soup.find_all("div", class_="r-ent")))
+        
+    news_items = []
+    
+    for rent in r_ents:
+        if len(news_items) >= limit:
+            break
+            
+        title_div = rent.find("div", class_="title")
+        if not title_div:
+            continue
+            
+        a_tag = title_div.find("a")
+        if not a_tag:
+            continue
+            
+        title = a_tag.text.strip()
+        href = a_tag.get("href", "")
+        full_link = f"https://www.ptt.cc{href}"
+        
+        doc_id_match = re.search(r'\/bbs\/Fruits\/(M\.\d+\.A\.[A-Za-z0-9]+)\.html', href)
+        doc_id = doc_id_match.group(1) if doc_id_match else ""
+        
+        date_div = rent.find("div", class_="date")
+        date_list_str = date_div.text.strip() if date_div else ""
+        
+        # 抓取文章內頁以取得精確的完整發文時間（含年份）
+        try:
+            art_resp = requests.get(full_link, headers=headers, timeout=5)
+            art_resp.encoding = 'utf-8'
+            art_soup = BeautifulSoup(art_resp.text, "html.parser")
+            
+            meta_lines = art_soup.find_all("div", class_="article-metaline")
+            date_parsed = None
+            for line in meta_lines:
+                tag = line.find("span", class_="article-meta-tag")
+                val = line.find("span", class_="article-meta-value")
+                if tag and val and tag.text == "時間":
+                    date_parsed = val.text.strip()
+                    break
+            
+            if date_parsed:
+                months = {
+                    "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+                    "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+                    "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+                }
+                parts = re.split(r'\s+', date_parsed)
+                if len(parts) >= 5:
+                    month_name = parts[1]
+                    day = parts[2]
+                    year = parts[4]
+                    
+                    month = months.get(month_name, "01")
+                    if len(day) == 1:
+                        day = "0" + day
+                    
+                    try:
+                        g_year = int(year)
+                        roc_year = g_year - 1911
+                        date_str = f"{roc_year}-{month}-{day}"
+                    except ValueError:
+                        date_str = date_list_str.replace("/", "-")
+                else:
+                    date_str = date_list_str.replace("/", "-")
+            else:
+                date_str = date_list_str.replace("/", "-")
+        except Exception as e:
+            print(f"[Crawler] PTT Fruits fetch article details failed for {full_link}: {e}")
+            date_str = date_list_str.replace("/", "-")
+            
+        news_items.append({
+            "source": "PTT Fruits",
+            "doc_id": doc_id,
+            "date": date_str,
+            "title": title,
+            "link": full_link
+        })
+        
+    return news_items
+
+# 爬取農傳媒新聞
+def scrape_agriharvest_news(limit=10):
+    url = "https://www.agriharvest.tw/archives/category/%E6%96%B0%E8%81%9E/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"[Crawler] AgrHarvest fetch failed: {e}")
+        return []
+        
+    html_content = response.content.decode('utf-8', errors='ignore')
+    soup = BeautifulSoup(html_content, "html.parser")
+    
+    post_titles = soup.find_all("a", class_="post-title")
+    news_items = []
+    
+    for a_tag in post_titles:
+        if len(news_items) >= limit:
+            break
+            
+        title = a_tag.get_text().strip()
+        link = a_tag.get("href", "").strip()
+        if not link:
+            continue
+            
+        full_link = urllib.parse.urljoin("https://www.agriharvest.tw/", link)
+        doc_id_match = re.search(r'/archives/(\d+)', full_link)
+        doc_id = doc_id_match.group(1) if doc_id_match else ""
+        
+        # Locate the date element (could be in parent or grandparent)
+        date_li = None
+        parent = a_tag.parent
+        if parent:
+            date_li = parent.find("li", class_="post-date")
+            if not date_li:
+                grandparent = parent.parent
+                if grandparent:
+                    date_li = grandparent.find("li", class_="post-date")
+                    
+        date_str = ""
+        if date_li:
+            raw_date = date_li.get_text().strip()
+            # Convert raw_date (e.g., "20260714") to ROC date (e.g., "115-07-14")
+            if re.match(r'^\d{8}$', raw_date):
+                try:
+                    year = int(raw_date[:4])
+                    month = raw_date[4:6]
+                    day = raw_date[6:8]
+                    roc_year = year - 1911
+                    date_str = f"{roc_year}-{month}-{day}"
+                except ValueError:
+                    date_str = raw_date
+            else:
+                date_str = raw_date
+                
+        news_items.append({
+            "source": "農傳媒",
+            "doc_id": doc_id,
+            "date": date_str,
+            "title": title,
+            "link": full_link
+        })
+        
+    return news_items
+
 # 匯整並存檔去重
 def consolidate_and_save(new_items):
     file_path = os.path.join(os.path.dirname(__file__), "news_history.json")
@@ -198,7 +370,9 @@ def scheduler_loop(stop_event: threading.Event):
         try:
             afa_news = scrape_afa_news(10)
             moa_news = scrape_moa_news(10)
-            consolidate_and_save(afa_news + moa_news)
+            ptt_news = scrape_ptt_fruits(10)
+            agri_news = scrape_agriharvest_news(10)
+            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
         except Exception as e:
             print(f"[Scheduler] 首次初始化爬取失敗: {e}")
             
@@ -223,7 +397,9 @@ def scheduler_loop(stop_event: threading.Event):
         try:
             afa_news = scrape_afa_news(10)
             moa_news = scrape_moa_news(10)
-            consolidate_and_save(afa_news + moa_news)
+            ptt_news = scrape_ptt_fruits(10)
+            agri_news = scrape_agriharvest_news(10)
+            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
             print("[Scheduler] 定時新聞爬取與匯整成功。")
         except Exception as e:
             print(f"[Scheduler] 定時爬取執行時發生錯誤: {e}")
@@ -259,7 +435,9 @@ def get_news():
         # 檔案不存在則立即進行一次爬取
         afa_news = scrape_afa_news(10)
         moa_news = scrape_moa_news(10)
-        consolidate_and_save(afa_news + moa_news)
+        ptt_news = scrape_ptt_fruits(10)
+        agri_news = scrape_agriharvest_news(10)
+        consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
         
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -275,7 +453,9 @@ def manual_crawl():
         print("[Manual Crawl] 收到手動爬取要求，開始爬取最新新聞...")
         afa_news = scrape_afa_news(10)
         moa_news = scrape_moa_news(10)
-        data = consolidate_and_save(afa_news + moa_news)
+        ptt_news = scrape_ptt_fruits(10)
+        agri_news = scrape_agriharvest_news(10)
+        data = consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
         return {"error": None, "message": "手動爬取與匯整成功完成！", "data": data}
     except Exception as e:
         return {"error": f"手動爬取失敗: {str(e)}", "data": []}

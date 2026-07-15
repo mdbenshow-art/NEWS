@@ -14,11 +14,81 @@
         "link": "https://www.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri&id=10210"
     },
     {
+        "source": "農傳媒",
+        "doc_id": "137482",
+        "date": "115-07-14",
+        "title": "法國乾酪檢出大腸桿菌不合格 好市多美國冷凍綜合蔬菜多種農藥殘留超標",
+        "link": "https://www.agriharvest.tw/archives/137482/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137479",
+        "date": "115-07-14",
+        "title": "萬里溪堰塞湖9成滿、維持黃色警戒 農業部估未來兩天達溢流水位",
+        "link": "https://www.agriharvest.tw/archives/137479/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137473",
+        "date": "115-07-14",
+        "title": "葉片軟嫩扎實「不卡牙縫」 韭菜「台中1號」一年割8次、產量更高",
+        "link": "https://www.agriharvest.tw/archives/137473/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137459",
+        "date": "115-07-14",
+        "title": "食藥署公布「預防性下架」油品重新上架三原則 5批強制下架問題油排除適用",
+        "link": "https://www.agriharvest.tw/archives/137459/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137445",
+        "date": "115-07-14",
+        "title": "歐盟新基因體技術法規將生效 學者籲國內建立相應法規、開放產業應用",
+        "link": "https://www.agriharvest.tw/archives/137445/"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-07-14",
+        "title": "[廣宣] 黃肉，白玉 一條龍榴槤蜜",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1784033014.A.94C.html"
+    },
+    {
         "source": "農業部",
         "doc_id": "10036",
         "date": "115-07-13",
         "title": "萬里溪堰塞湖水位接近溢流口 維持黃色警戒嚴密戒備",
         "link": "https://www.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri&id=10209"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137393",
+        "date": "115-07-13",
+        "title": "巴威颱風農業災損逾3700萬元 即使未報災損、氣象參數型農業保單確定理賠2千萬元",
+        "link": "https://www.agriharvest.tw/archives/137393/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137377",
+        "date": "115-07-13",
+        "title": "第十屆科技農企業菁創獎最後徵件",
+        "link": "https://www.agriharvest.tw/archives/137377/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137382",
+        "date": "115-07-13",
+        "title": "網路傳言「芬普尼」毒蘋果開放進口 食藥署：是訂定蘋果「芬普寧」限量標準",
+        "link": "https://www.agriharvest.tw/archives/137382/"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137370",
+        "date": "115-07-13",
+        "title": "苗栗甜柿、紅棗災損浮現 青農謝富羽：棗產季剛開始、就要結束了",
+        "link": "https://www.agriharvest.tw/archives/137370/"
     },
     {
         "source": "農糧署",
@@ -40,6 +110,13 @@
         "date": "115-07-09",
         "title": "超商賣場就能吃五星澎湃！臺灣燴飯王冠軍搶攻都會即食商機",
         "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=33816"
+    },
+    {
+        "source": "農傳媒",
+        "doc_id": "137366",
+        "date": "115-07-09",
+        "title": "問題油的豆粕添加飼料危害畜禽？ 農業部：「苯駢芘」殘留微乎其微、幾可忽略",
+        "link": "https://www.agriharvest.tw/archives/137366/"
     },
     {
         "source": "農糧署",
@@ -89,6 +166,13 @@
         "date": "115-07-06",
         "title": "強颱巴威逼近 萬里溪堰塞湖全面防災應變",
         "link": "https://www.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri&id=10203"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-07-05",
+        "title": "[廣宣] 台南梅嶺愛文芒果",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1783260722.A.AB0.html"
     },
     {
         "source": "農業部",
@@ -182,11 +266,32 @@
         "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=33772"
     },
     {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-06-27",
+        "title": "[廣宣] 台中東勢 新興梨（已售完）",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1782564986.A.585.html"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-06-27",
+        "title": "[廣宣] 玉井愛文芒果乾",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1782548567.A.C10.html"
+    },
+    {
         "source": "農糧署",
         "doc_id": "33770",
         "date": "115-06-26",
         "title": "因應6月下旬豪雨災情 農業部主動公告高雄市、屏東縣農產業全品項辦理現金救助與低利貸款",
         "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=33770"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-06-26",
+        "title": "[廣宣] 阿興家裡後面院子的芒果",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1782438306.A.CF1.html"
     },
     {
         "source": "農糧署",
@@ -201,6 +306,13 @@
         "date": "115-06-22",
         "title": "科技鎖住鮮甜 農糧署攜手產業推出液態氮冷凍高麗菜 打造穩定供銷新模式",
         "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=33743"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-06-20",
+        "title": "[廣宣] 台南自產芒果乾（邁入第四年）",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1781917891.A.A7F.html"
     },
     {
         "source": "農糧署",
@@ -222,5 +334,33 @@
         "date": "115-06-10",
         "title": "外銷獎勵、多元通路、鼓勵加工穩定產銷 香蕉批發市場價格已回穩",
         "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=33712"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-06-09",
+        "title": "[廣宣] 台東旭橘果園-夏雪芒果",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1780954272.A.BBD.html"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-05-24",
+        "title": "[廣宣] 自種屏東枋山愛文，售完",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1779552689.A.2B3.html"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-05-21",
+        "title": "[廣宣] 玉井農場特色芒果",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1779373456.A.997.html"
+    },
+    {
+        "source": "PTT Fruits",
+        "doc_id": "",
+        "date": "115-05-08",
+        "title": "[廣宣] 寶媽好芒｜小農愛文芒果｜少量限定品種",
+        "link": "https://www.ptt.cc/bbs/fruits/M.1778207548.A.F56.html"
     }
 ]
