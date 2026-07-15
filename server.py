@@ -159,8 +159,11 @@ def scrape_ptt_fruits(limit=10):
         "Cookie": "over18=1"
     }
     
+    session = requests.Session()
+    session.headers.update(headers)
+    
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = session.get(url, timeout=10)
         response.raise_for_status()
     except Exception as e:
         print(f"[Crawler] PTT Fruits fetch failed: {e}")
@@ -201,7 +204,8 @@ def scrape_ptt_fruits(limit=10):
         
         # 抓取文章內頁以取得精確的完整發文時間（含年份）
         try:
-            art_resp = requests.get(full_link, headers=headers, timeout=5)
+            time.sleep(0.2) # 稍微延遲以避免 PTT 阻擋連線
+            art_resp = session.get(full_link, timeout=5)
             art_resp.encoding = 'utf-8'
             art_soup = BeautifulSoup(art_resp.text, "html.parser")
             
@@ -323,6 +327,111 @@ def scrape_agriharvest_news(limit=10):
         
     return news_items
 
+# 解析 Yahoo 新聞日期
+def parse_yahoo_date(date_str):
+    date_str = date_str.strip()
+    # 台北時間 (UTC+8) 轉換
+    tz_utc8 = datetime.timezone(datetime.timedelta(hours=8))
+    now = datetime.datetime.now(datetime.timezone.utc).astimezone(tz_utc8)
+    
+    if '天前' in date_str:
+        match_day = re.search(r'(\d+)\s*天前', date_str)
+        days = int(match_day.group(1)) if match_day else 0
+        target_date = now - datetime.timedelta(days=days)
+    elif '小時前' in date_str:
+        match_hour = re.search(r'(\d+)\s*小時前', date_str)
+        hours = int(match_hour.group(1)) if match_hour else 0
+        target_date = now - datetime.timedelta(hours=hours)
+    elif '分鐘前' in date_str:
+        match_min = re.search(r'(\d+)\s*分鐘前', date_str)
+        minutes = int(match_min.group(1)) if match_min else 0
+        target_date = now - datetime.timedelta(minutes=minutes)
+    elif '秒前' in date_str or '剛剛' in date_str:
+        target_date = now
+    elif '昨日' in date_str or '昨天' in date_str:
+        target_date = now - datetime.timedelta(days=1)
+    elif re.search(r'(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日', date_str):
+        match = re.search(r'(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日', date_str)
+        y, m, d = int(match.group(1)), int(match.group(2)), int(match.group(3))
+        target_date = datetime.datetime(y, m, d, tzinfo=tz_utc8)
+    elif re.search(r'(\d{1,2})\s*月\s*(\d{1,2})\s*日', date_str):
+        match = re.search(r'(\d{1,2})\s*月\s*(\d{1,2})\s*日', date_str)
+        m, d = int(match.group(1)), int(match.group(2))
+        target_date = datetime.datetime(now.year, m, d, tzinfo=tz_utc8)
+    else:
+        target_date = now
+        
+    roc_year = target_date.year - 1911
+    return f"{roc_year}-{target_date.month:02d}-{target_date.day:02d}"
+
+# 爬取 Yahoo 新聞
+def scrape_yahoo_news(limit=10):
+    url = "https://tw.news.yahoo.com/search?p=%E9%AB%98%E9%BA%97%E8%8F%9C"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"[Crawler] Yahoo fetch failed: {e}")
+        return []
+        
+    soup = BeautifulSoup(response.text, "html.parser")
+    cards = soup.find_all("li", class_="stream-card")
+    news_items = []
+    
+    for card in cards:
+        if len(news_items) >= limit:
+            break
+            
+        h3 = card.find("h3")
+        if not h3:
+            continue
+            
+        a_tag = h3.find("a")
+        if not a_tag:
+            continue
+            
+        title = a_tag.text.strip()
+        link = a_tag.get("href", "").strip()
+        if not link:
+            continue
+            
+        full_link = urllib.parse.urljoin("https://tw.news.yahoo.com/", link)
+        doc_id_match = re.search(r'-(\d+)\.html$', full_link)
+        doc_id = doc_id_match.group(1) if doc_id_match else ""
+        
+        # 尋找發布來源與日期資訊
+        meta_div = card.find("div", class_="text-px12")
+        publisher = ""
+        date_str = ""
+        if meta_div:
+            meta_text = meta_div.get_text()
+            if "・" in meta_text:
+                parts = meta_text.split("・")
+                publisher = parts[0].strip()
+                date_str = parse_yahoo_date(parts[1])
+            else:
+                date_str = parse_yahoo_date(meta_text)
+        else:
+            date_str = parse_yahoo_date("")
+            
+        # 若有原發布媒體，將其標註於標題前
+        if publisher:
+            title = f"[{publisher}] {title}"
+            
+        news_items.append({
+            "source": "Yahoo新聞",
+            "doc_id": doc_id,
+            "date": date_str,
+            "title": title,
+            "link": full_link
+        })
+        
+    return news_items
+
 # 匯整並存檔去重
 def consolidate_and_save(new_items):
     file_path = os.path.join(os.path.dirname(__file__), "news_history.json")
@@ -372,7 +481,8 @@ def scheduler_loop(stop_event: threading.Event):
             moa_news = scrape_moa_news(10)
             ptt_news = scrape_ptt_fruits(10)
             agri_news = scrape_agriharvest_news(10)
-            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
+            yahoo_news = scrape_yahoo_news(10)
+            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news + yahoo_news)
         except Exception as e:
             print(f"[Scheduler] 首次初始化爬取失敗: {e}")
             
@@ -399,7 +509,8 @@ def scheduler_loop(stop_event: threading.Event):
             moa_news = scrape_moa_news(10)
             ptt_news = scrape_ptt_fruits(10)
             agri_news = scrape_agriharvest_news(10)
-            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
+            yahoo_news = scrape_yahoo_news(10)
+            consolidate_and_save(afa_news + moa_news + ptt_news + agri_news + yahoo_news)
             print("[Scheduler] 定時新聞爬取與匯整成功。")
         except Exception as e:
             print(f"[Scheduler] 定時爬取執行時發生錯誤: {e}")
@@ -437,7 +548,8 @@ def get_news():
         moa_news = scrape_moa_news(10)
         ptt_news = scrape_ptt_fruits(10)
         agri_news = scrape_agriharvest_news(10)
-        consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
+        yahoo_news = scrape_yahoo_news(10)
+        consolidate_and_save(afa_news + moa_news + ptt_news + agri_news + yahoo_news)
         
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -455,7 +567,8 @@ def manual_crawl():
         moa_news = scrape_moa_news(10)
         ptt_news = scrape_ptt_fruits(10)
         agri_news = scrape_agriharvest_news(10)
-        data = consolidate_and_save(afa_news + moa_news + ptt_news + agri_news)
+        yahoo_news = scrape_yahoo_news(10)
+        data = consolidate_and_save(afa_news + moa_news + ptt_news + agri_news + yahoo_news)
         return {"error": None, "message": "手動爬取與匯整成功完成！", "data": data}
     except Exception as e:
         return {"error": f"手動爬取失敗: {str(e)}", "data": []}

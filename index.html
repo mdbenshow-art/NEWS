@@ -254,6 +254,12 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
+        .badge-yahoo {
+            background: rgba(147, 51, 234, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
         /* 主顯示區域 (玻璃擬態) */
         .content-panel {
             background: var(--panel-bg);
@@ -540,6 +546,7 @@
                 <option value="農糧署">農糧署</option>
                 <option value="PTT Fruits">PTT Fruits</option>
                 <option value="農傳媒">農傳媒</option>
+                <option value="Yahoo新聞">Yahoo新聞</option>
             </select>
             <input type="text" id="search-query" class="search-input" placeholder="搜尋新聞標題或關鍵字..." oninput="filterAndRenderNews()">
         </div>
@@ -582,7 +589,8 @@
         <p>資料來源：
             <a href="https://www.moa.gov.tw/theme_list.php?theme=news&sub_theme=agri" target="_blank">農業部新聞</a> | 
             <a href="https://www.afa.gov.tw/cht/index.php?code=list&ids=307" target="_blank">農糧署新聞</a> | 
-            <a href="https://www.agriharvest.tw/archives/category/%E6%96%B0%E8%81%9E/" target="_blank">農傳媒新聞</a>
+            <a href="https://www.agriharvest.tw/archives/category/%E6%96%B0%E8%81%9E/" target="_blank">農傳媒新聞</a> | 
+            <a href="https://tw.news.yahoo.com/search?p=%E9%AB%98%E9%BA%97%E8%8F%9C" target="_blank">Yahoo新聞</a>
         </p>
     </footer>
 
@@ -692,6 +700,8 @@
                     badgeClass = 'badge-ptt';
                 } else if (item.source === '農傳媒') {
                     badgeClass = 'badge-agriharvest';
+                } else if (item.source === 'Yahoo新聞') {
+                    badgeClass = 'badge-yahoo';
                 }
                 const docText = item.doc_id ? `<span class="news-doc">${item.doc_id}</span>` : '';
                 

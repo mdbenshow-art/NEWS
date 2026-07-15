@@ -39,7 +39,7 @@ def main():
     if os.path.exists(requirements_path):
         print("正在透過虛擬環境安裝必要套件 (fastapi, uvicorn, requests, beautifulsoup4)...")
         try:
-            subprocess.run([pip_exe, "install", "-r", "requirements.txt"], check=True, cwd=workspace)
+            subprocess.run([python_exe, "-m", "pip", "install", "-r", "requirements.txt"], check=True, cwd=workspace)
             print("必要套件安裝成功！")
         except subprocess.CalledProcessError as e:
             print(f"安裝套件時發生錯誤: {e}")

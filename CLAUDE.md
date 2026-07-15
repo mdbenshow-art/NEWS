@@ -1,6 +1,6 @@
 # 農業與農糧署新聞排程匯整系統說明書 (CLAUDE.md)
 
-本專案是一個基於 FastAPI 的自動化農業新聞爬蟲與去重匯整系統，負責每日定時爬取 **農業部** 與 **農糧署** 的最新新聞並整合存檔。
+本專案是一個基於 FastAPI 的自動化農業新聞爬蟲與去重匯整系統，負責每日定時爬取 **農業部**、**農糧署**、**PTT Fruits 板**、**農傳媒** 與 **Yahoo 新聞（高麗菜搜尋）** 的最新新聞並整合存檔。
 
 ---
 
@@ -48,6 +48,9 @@ python run.py
 ### 1. 爬蟲模組
 * **農業部爬蟲 (`scrape_moa_news`)**：抓取最新 10 筆新聞。
 * **農糧署爬蟲 (`scrape_afa_news`)**：抓取 [農糧署農業新聞](https://www.afa.gov.tw/cht/index.php?code=list&ids=307) 最新 10 筆新聞。由於第一頁可能不足 10 筆，系統支援**跨分頁爬取**，會自動請求下一頁直到集滿 10 筆為止。
+* **PTT Fruits 板爬蟲 (`scrape_ptt_fruits`)**：抓取 PTT Fruits 板最新 10 筆文章，使用 `requests.Session()` 維持連線並加入 `0.2` 秒請求延遲，以防止 PTT 伺服器阻擋。
+* **農傳媒爬蟲 (`scrape_agriharvest_news`)**：抓取農傳媒最新 10 筆新聞，並轉換為民國年日期格式。
+* **Yahoo 新聞爬蟲 (`scrape_yahoo_news`)**：抓取 Yahoo 新聞「高麗菜」關鍵字搜尋結果前 10 筆，自動解析相對發布時間（如：X 小時前、X 天前），並在標題前標註原始來源媒體（如 `[三立新聞網] ...`）。
 
 ### 2. 歷史去重匯整
 * 所有爬取到的新聞會與本地歷史存檔 [news_history.json](file:///c:/Users/User/Desktop/news/news_history.json) 進行去重合併。
@@ -78,7 +81,12 @@ python run.py
 
 ## 技術細節
 * **網頁解碼**：由於農糧署網站回應之 HTML 有時編碼探測混亂，系統採用 `response.content.decode('utf-8', errors='ignore')` 強制 UTF-8 解碼，確保中文標題與日期解析無誤。
-* **日期解析**：透過正則表達式 `\d+-\d+-\d+` 提取民國日期字串（如 `115-07-06`），此格式排序相容於標準字串排序。
+* **日期解析與轉換**：
+  - 透過正則表達式 `\d+-\d+-\d+` 提取民國日期字串（如 `115-07-06`），此格式排序相容於標準字串排序。
+  - 對於 Yahoo 新聞的相對時間描述（如 `21 小時前`、`1 天前` 等），系統會利用台北時間 (UTC+8) 的時間基準，自動回推並轉換為對應的民國年月日。
+* **反阻擋機制 (PTT Scraper)**：
+  - PTT 爬蟲在抓取看板文章時會利用 `requests.Session()` 維持 TCP/SSL 持續連接。
+  - 進入文章內頁解析精確日期時，引入 `time.sleep(0.2)` 的微小休眠延遲，能有效防止 PTT 伺服器丟出 Connection Reset 阻斷連線。
 * **GitHub Pages 部署必要設定**：
-  1. 必須在儲存庫的 **Settings** -> **Actions** -> **General** 下將 **Workflow permissions** 改為 **Read and write permissions**，允許 Actions 推送更新後的 JSON。
-  2. 在 **Settings** -> **Pages** 下將 **Build and deployment** 設定為從 `main` 分支的 `/ (root)` 部署。
+  - 必須在儲存庫的 **Settings** -> **Actions** -> **General** 下將 **Workflow permissions** 改為 **Read and write permissions**，允許 Actions 推送更新後的 JSON。
+  - 在 **Settings** -> **Pages** 下將 **Build and deployment** 設定為從 `main` 分支的 `/ (root)` 部署。

@@ -1,7 +1,7 @@
 import os
 import json
 import datetime
-from server import scrape_afa_news, scrape_moa_news, scrape_ptt_fruits, scrape_agriharvest_news, consolidate_and_save, scheduler_status
+from server import scrape_afa_news, scrape_moa_news, scrape_ptt_fruits, scrape_agriharvest_news, scrape_yahoo_news, consolidate_and_save, scheduler_status
 
 def main():
     print("==================================================")
@@ -9,7 +9,7 @@ def main():
     print("==================================================")
     
     # 執行爬蟲，抓取最新新聞
-    print("[1/4] 正在爬取農糧署新聞...")
+    print("[1/5] 正在爬取農糧署新聞...")
     try:
         afa_news = scrape_afa_news(10)
         print(f" -> 農糧署新聞爬取完成，共 {len(afa_news)} 筆。")
@@ -17,7 +17,7 @@ def main():
         print(f" -> [錯誤] 爬取農糧署新聞失敗: {e}")
         afa_news = []
         
-    print("[2/4] 正在爬取農業部新聞...")
+    print("[2/5] 正在爬取農業部新聞...")
     try:
         moa_news = scrape_moa_news(10)
         print(f" -> 農業部新聞爬取完成，共 {len(moa_news)} 筆。")
@@ -41,13 +41,21 @@ def main():
         print(f" -> [錯誤] 爬取農傳媒新聞失敗: {e}")
         agri_news = []
         
+    print("[5/5] 正在爬取 Yahoo 新聞...")
+    try:
+        yahoo_news = scrape_yahoo_news(10)
+        print(f" -> Yahoo 新聞爬取完成，共 {len(yahoo_news)} 筆。")
+    except Exception as e:
+        print(f" -> [錯誤] 爬取 Yahoo 新聞失敗: {e}")
+        yahoo_news = []
+        
     # 合併並儲存
-    all_news = afa_news + moa_news + ptt_news + agri_news
+    all_news = afa_news + moa_news + ptt_news + agri_news + yahoo_news
     if all_news:
-        print("[5/5] 正在整合新聞資料並寫入歷史檔案...")
+        print("[6/6] 正在整合新聞資料並寫入歷史檔案...")
         consolidate_and_save(all_news)
     else:
-        print("[5/5] 無法取得任何新聞資料，跳過整合步驟。")
+        print("[6/6] 無法取得任何新聞資料，跳過整合步驟。")
         
     # 產生 status.json 狀態檔供靜態網頁讀取
     status_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "status.json")
