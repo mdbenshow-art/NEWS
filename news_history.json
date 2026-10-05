@@ -8,10 +8,24 @@
     },
     {
         "source": "Yahoo新聞",
+        "doc_id": "001019051",
+        "date": "115-10-05",
+        "title": "[Yahoo旅遊網友投稿] 鹿港阿道：排隊也要吃，超人氣彰化小吃",
+        "link": "https://tw.news.yahoo.com/%E9%B9%BF%E6%B8%AF%E9%98%BF%E9%81%93-%E6%8E%92%E9%9A%8A%E4%B9%9F%E8%A6%81%E5%90%83-%E8%B6%85%E4%BA%BA%E6%B0%A3%E5%BD%B0%E5%8C%96%E5%B0%8F%E5%90%83-001019051.html"
+    },
+    {
+        "source": "Yahoo新聞",
         "doc_id": "201000398",
         "date": "115-10-04",
         "title": "[中時新聞網] 農糧署預警 高麗菜供苗量增 選前恐價崩",
         "link": "https://tw.news.yahoo.com/%E8%BE%B2%E7%B3%A7%E7%BD%B2%E9%A0%90%E8%AD%A6-%E9%AB%98%E9%BA%97%E8%8F%9C%E4%BE%9B%E8%8B%97%E9%87%8F%E5%A2%9E-%E9%81%B8%E5%89%8D%E6%81%90%E5%83%B9%E5%B4%A9-201000398.html"
+    },
+    {
+        "source": "農業部",
+        "doc_id": "10108",
+        "date": "115-10-04",
+        "title": "世界動物日決戰動保知識  「2026 毛孩守護者爭霸賽」毛孩守護者前三名出爐",
+        "link": "https://www.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri&id=10299"
     },
     {
         "source": "Yahoo新聞",
