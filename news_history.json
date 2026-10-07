@@ -8,6 +8,20 @@
     },
     {
         "source": "Yahoo新聞",
+        "doc_id": "004659820",
+        "date": "115-10-07",
+        "title": "[常春月刊] 高纖飲料，真能吃進纖維質？",
+        "link": "https://tw.news.yahoo.com/%E9%AB%98%E7%BA%96%E9%A3%B2%E6%96%99-%E7%9C%9F%E8%83%BD%E5%90%83%E9%80%B2%E7%BA%96%E7%B6%AD%E8%B3%AA-004659820.html"
+    },
+    {
+        "source": "農糧署",
+        "doc_id": "34316",
+        "date": "115-10-06",
+        "title": "稻米食安最前線 四道防線全面把關",
+        "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=34316"
+    },
+    {
+        "source": "Yahoo新聞",
         "doc_id": "001019051",
         "date": "115-10-05",
         "title": "[Yahoo旅遊網友投稿] 鹿港阿道：排隊也要吃，超人氣彰化小吃",
