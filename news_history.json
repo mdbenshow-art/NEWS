@@ -8,6 +8,41 @@
     },
     {
         "source": "農業部",
+        "doc_id": "HOT",
+        "date": "115-10-23",
+        "title": "115 年薔琵颱風農業災情報告",
+        "link": "https://www.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri&id=10320"
+    },
+    {
+        "source": "Yahoo新聞",
+        "doc_id": "124607212",
+        "date": "115-10-23",
+        "title": "[CTWANT] 薔琵颱風吹漲菜價！2種葉菜變貴　高麗菜反跌",
+        "link": "https://tw.news.yahoo.com/%E8%96%94%E7%90%B5%E9%A2%B1%E9%A2%A8%E5%90%B9%E6%BC%B2%E8%8F%9C%E5%83%B9-2%E7%A8%AE%E8%91%89%E8%8F%9C%E8%AE%8A%E8%B2%B4-%E9%AB%98%E9%BA%97%E8%8F%9C%E5%8F%8D%E8%B7%8C-124607212.html"
+    },
+    {
+        "source": "Yahoo新聞",
+        "doc_id": "064508294",
+        "date": "115-10-23",
+        "title": "[中時新聞網] 薔琵「風狂雨小」菜價微漲！西螺休市仍交易900公噸 高麗菜反下跌",
+        "link": "https://tw.news.yahoo.com/%E8%96%94%E7%90%B5-%E9%A2%A8%E7%8B%82%E9%9B%A8%E5%B0%8F-%E8%8F%9C%E5%83%B9%E5%BE%AE%E6%BC%B2-%E8%A5%BF%E8%9E%BA%E4%BC%91%E5%B8%82%E4%BB%8D%E4%BA%A4%E6%98%93900%E5%85%AC%E5%99%B8-%E9%AB%98%E9%BA%97%E8%8F%9C%E5%8F%8D%E4%B8%8B%E8%B7%8C-064508294.html"
+    },
+    {
+        "source": "Yahoo新聞",
+        "doc_id": "102100636",
+        "date": "115-10-23",
+        "title": "[三立新聞網 setn.com] 颱風天菜價貴森森！火鍋店加點30元高麗菜「僅2片」　網嘆：天花板等級",
+        "link": "https://tw.news.yahoo.com/%E9%A2%B1%E9%A2%A8%E5%A4%A9%E8%8F%9C%E5%83%B9%E8%B2%B4%E6%A3%AE%E6%A3%AE-%E7%81%AB%E9%8D%8B%E5%BA%97%E5%8A%A0%E9%BB%9E30%E5%85%83%E9%AB%98%E9%BA%97%E8%8F%9C-%E5%83%852%E7%89%87-%E7%B6%B2%E5%98%86-%E5%A4%A9%E8%8A%B1%E6%9D%BF%E7%AD%89%E7%B4%9A-102100636.html"
+    },
+    {
+        "source": "Yahoo新聞",
+        "doc_id": "091100083",
+        "date": "115-10-23",
+        "title": "[三立新聞網 setn.com] 想採買注意！颱風來讓葉菜類小漲  「這蔬菜」價格卻跌了",
+        "link": "https://tw.news.yahoo.com/%E8%A6%81%E5%8E%BB%E5%B8%82%E5%A0%B4%E8%B2%B7%E8%8F%9C-%E9%A2%B1%E9%A2%A8%E4%BE%86%E8%AE%93%E8%91%89%E8%8F%9C%E9%A1%9E%E5%B0%8F%E6%BC%B2-%E9%80%99%E8%94%AC%E8%8F%9C-%E5%83%B9%E6%A0%BC%E5%8D%BB%E8%B7%8C%E4%BA%86-091100083.html"
+    },
+    {
+        "source": "農業部",
         "doc_id": "10123",
         "date": "115-10-22",
         "title": "臺灣豬「菲」常受歡迎！ 菲律賓國際飯店主廚與餐飲採購業者力讚臺灣豬肉美味鮮甜",
@@ -61,6 +96,20 @@
         "date": "115-10-22",
         "title": "[常春月刊] 薔琵颱風明天逼近！高麗菜、青蔥恐漲價，營養師教你挑對蔬菜、保存更久",
         "link": "https://tw.news.yahoo.com/%E8%96%94%E7%90%B5%E9%A2%B1%E9%A2%A8%E6%98%8E%E5%A4%A9%E9%80%BC%E8%BF%91-%E9%AB%98%E9%BA%97%E8%8F%9C-%E9%9D%92%E8%94%A5%E6%81%90%E6%BC%B2%E5%83%B9-%E7%87%9F%E9%A4%8A%E5%B8%AB%E6%95%99%E4%BD%A0%E6%8C%91%E5%B0%8D%E8%94%AC%E8%8F%9C-%E4%BF%9D%E5%AD%98%E6%9B%B4%E4%B9%85-061107689.html"
+    },
+    {
+        "source": "農糧署",
+        "doc_id": "34383",
+        "date": "115-10-22",
+        "title": "農糧署持續關注薔琵颱風影響 加強蔬菜調配供應穩定民生需求",
+        "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=34383"
+    },
+    {
+        "source": "農糧署",
+        "doc_id": "34382",
+        "date": "115-10-22",
+        "title": "爭取行政院支持農機與設施中程計畫 農業部雙軌併進打造智慧韌性新農業",
+        "link": "https://www.afa.gov.tw/cht/index.php?code=list&flag=detail&ids=307&article_id=34382"
     },
     {
         "source": "農糧署",
